@@ -2289,12 +2289,16 @@ function initializePWA() {
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const isAndroid = /Android/.test(navigator.userAgent);
+    const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+    const isChrome = /Chrome/.test(navigator.userAgent);
 
     // Debug logging
     console.log('🔍 PWA Detection Debug:', {
         isMobile,
         isIOS,
         isAndroid,
+        isSafari,
+        isChrome,
         userAgent: navigator.userAgent,
         standalone: window.matchMedia('(display-mode: standalone)').matches
     });
@@ -2314,26 +2318,73 @@ function initializePWA() {
             if (isIOS && !window.matchMedia('(display-mode: standalone)').matches) {
                 console.log('🍎 Creating iOS install button');
                 const iosInstallBtn = document.createElement('button');
-                iosInstallBtn.textContent = '📱 iOS Install';
-                iosInstallBtn.className = 'ios-install-btn';
+                
+                if (isSafari) {
+                    iosInstallBtn.textContent = '📱 Safari Install';
+                    iosInstallBtn.className = 'safari-install-btn';
+                    iosInstallBtn.onclick = () => {
+                        console.log('🍎 Safari install button clicked');
+                        const safariPrompt = document.createElement('div');
+                        safariPrompt.className = 'mobile-pwa-prompt';
+                        safariPrompt.style.display = 'flex';
+                        safariPrompt.innerHTML = `
+                            <div class="mobile-prompt-content">
+                                <h3>📱 Install in Safari</h3>
+                                <p>1. Tap the <strong>share button</strong> <span class="icon">⎋</span> at the bottom</p>
+                                <p>2. Scroll down and tap <strong>"Add to Home Screen"</strong></p>
+                                <p>3. Tap <strong>"Add"</strong> to install the app</p>
+                                <p class="safari-note">💡 Safari will add the app to your home screen like a native app!</p>
+                                <button onclick="this.parentElement.parentElement.remove()">Got it!</button>
+                            </div>
+                        `;
+                        document.body.appendChild(safariPrompt);
+                        console.log('✅ Safari prompt added to body');
+                    };
+                } else if (isChrome) {
+                    iosInstallBtn.textContent = '📱 Chrome Install';
+                    iosInstallBtn.className = 'ios-install-btn';
+                    iosInstallBtn.onclick = () => {
+                        console.log('🍎 Chrome install button clicked');
+                        const chromePrompt = document.createElement('div');
+                        chromePrompt.className = 'mobile-pwa-prompt';
+                        chromePrompt.style.display = 'flex';
+                        chromePrompt.innerHTML = `
+                            <div class="mobile-prompt-content">
+                                <h3>📱 Install in Chrome</h3>
+                                <p>1. Tap the <strong>menu button</strong> <span class="icon">⋮</span> at the top</p>
+                                <p>2. Tap <strong>"Add to Home Screen"</strong></p>
+                                <p>3. Tap <strong>"Add"</strong> to install the app</p>
+                                <p class="chrome-note">💡 Chrome will add the app to your home screen!</p>
+                                <button onclick="this.parentElement.parentElement.remove()">Got it!</button>
+                            </div>
+                        `;
+                        document.body.appendChild(chromePrompt);
+                        console.log('✅ Chrome prompt added to body');
+                    };
+                } else {
+                    // Fallback for other browsers
+                    iosInstallBtn.textContent = '📱 iOS Install';
+                    iosInstallBtn.className = 'ios-install-btn';
+                    iosInstallBtn.onclick = () => {
+                        console.log('🍎 Generic iOS install button clicked');
+                        const genericPrompt = document.createElement('div');
+                        genericPrompt.className = 'mobile-pwa-prompt';
+                        genericPrompt.style.display = 'flex';
+                        genericPrompt.innerHTML = `
+                            <div class="mobile-prompt-content">
+                                <h3>📱 Install on iOS</h3>
+                                <p>1. Tap the share button <span class="icon">⎋</span> at the bottom</p>
+                                <p>2. Scroll down and tap "Add to Home Screen"</p>
+                                <p>3. Tap "Add" to install the app</p>
+                                <button onclick="this.parentElement.parentElement.remove()">Got it!</button>
+                            </div>
+                        `;
+                        document.body.appendChild(genericPrompt);
+                        console.log('✅ Generic iOS prompt added to body');
+                    };
+                }
+                
                 iosInstallBtn.style.display = 'inline-block'; // Force display
-                iosInstallBtn.onclick = () => {
-                    console.log('🍎 iOS install button clicked');
-                    const iosPrompt = document.createElement('div');
-                    iosPrompt.className = 'mobile-pwa-prompt';
-                    iosPrompt.style.display = 'flex';
-                    iosPrompt.innerHTML = `
-                        <div class="mobile-prompt-content">
-                            <h3>📱 Install on iOS</h3>
-                            <p>1. Tap the share button <span class="icon">⎋</span> at the bottom</p>
-                            <p>2. Scroll down and tap "Add to Home Screen"</p>
-                            <p>3. Tap "Add" to install the app</p>
-                            <button onclick="this.parentElement.parentElement.remove()">Got it!</button>
-                        </div>
-                    `;
-                    document.body.appendChild(iosPrompt);
-                    console.log('✅ iOS prompt added to body');
-                };
                 header.appendChild(iosInstallBtn);
                 console.log('✅ iOS install button added to header');
             } else {
