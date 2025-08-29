@@ -2286,18 +2286,34 @@ const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 const isAndroid = /Android/.test(navigator.userAgent);
 
+// Debug logging
+console.log('🔍 PWA Detection Debug:', {
+    isMobile,
+    isIOS,
+    isAndroid,
+    userAgent: navigator.userAgent,
+    standalone: window.matchMedia('(display-mode: standalone)').matches
+});
+
 // Add install button to the page
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('🚀 DOM Content Loaded');
     const header = document.querySelector('header');
+    console.log('📋 Header found:', !!header);
+    
     if (header) {
         header.appendChild(installButton);
+        console.log('✅ Install button added to header');
         
         // Add iOS-specific manual install button
         if (isIOS && !window.matchMedia('(display-mode: standalone)').matches) {
+            console.log('🍎 Creating iOS install button');
             const iosInstallBtn = document.createElement('button');
             iosInstallBtn.textContent = '📱 iOS Install';
             iosInstallBtn.className = 'ios-install-btn';
+            iosInstallBtn.style.display = 'inline-block'; // Force display
             iosInstallBtn.onclick = () => {
+                console.log('🍎 iOS install button clicked');
                 const iosPrompt = document.createElement('div');
                 iosPrompt.className = 'mobile-pwa-prompt';
                 iosPrompt.style.display = 'flex';
@@ -2311,13 +2327,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 `;
                 document.body.appendChild(iosPrompt);
+                console.log('✅ iOS prompt added to body');
             };
             header.appendChild(iosInstallBtn);
+            console.log('✅ iOS install button added to header');
+        } else {
+            console.log('❌ Not creating iOS button:', {
+                isIOS,
+                isStandalone: window.matchMedia('(display-mode: standalone)').matches
+            });
         }
         
         // Show mobile-specific instructions
         if (isMobile && !window.matchMedia('(display-mode: standalone)').matches) {
-            console.log('Showing mobile PWA prompt');
+            console.log('📱 Showing mobile PWA prompt');
             const mobilePrompt = document.createElement('div');
             mobilePrompt.className = 'mobile-pwa-prompt';
             mobilePrompt.innerHTML = `
@@ -2331,20 +2354,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
             document.body.appendChild(mobilePrompt);
+            console.log('✅ Mobile prompt added to body');
             
             // Force show on iOS after a delay
             if (isIOS) {
                 setTimeout(() => {
-                    console.log('Forcing iOS prompt visibility');
+                    console.log('🍎 Forcing iOS prompt visibility');
                     mobilePrompt.style.display = 'flex';
                 }, 1000);
             }
         } else {
-            console.log('Not showing mobile prompt:', {
+            console.log('❌ Not showing mobile prompt:', {
                 isMobile,
                 isStandalone: window.matchMedia('(display-mode: standalone)').matches
             });
         }
+    } else {
+        console.log('❌ No header found');
     }
 });
 
