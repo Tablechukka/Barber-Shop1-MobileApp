@@ -2281,11 +2281,33 @@ installButton.textContent = '📱 Install App';
 installButton.className = 'install-btn';
 installButton.style.display = 'none';
 
+// Mobile PWA detection
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+const isAndroid = /Android/.test(navigator.userAgent);
+
 // Add install button to the page
 document.addEventListener('DOMContentLoaded', () => {
     const header = document.querySelector('header');
     if (header) {
         header.appendChild(installButton);
+        
+        // Show mobile-specific instructions
+        if (isMobile && !window.matchMedia('(display-mode: standalone)').matches) {
+            const mobilePrompt = document.createElement('div');
+            mobilePrompt.className = 'mobile-pwa-prompt';
+            mobilePrompt.innerHTML = `
+                <div class="mobile-prompt-content">
+                    <h3>📱 Install as App</h3>
+                    <p>${isIOS ? 
+                        'Tap the share button <span class="icon">⎋</span> then "Add to Home Screen"' : 
+                        'Tap the menu <span class="icon">⋮</span> then "Add to Home Screen"'
+                    }</p>
+                    <button onclick="this.parentElement.parentElement.remove()">Got it!</button>
+                </div>
+            `;
+            document.body.appendChild(mobilePrompt);
+        }
     }
 });
 
@@ -2294,7 +2316,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     // Stash the event so it can be triggered later
     deferredPrompt = e;
-    // Show the install button
+    // Show the install button (mainly for desktop)
     installButton.style.display = 'inline-block';
     
     installButton.addEventListener('click', () => {
