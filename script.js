@@ -2292,8 +2292,32 @@ document.addEventListener('DOMContentLoaded', () => {
     if (header) {
         header.appendChild(installButton);
         
+        // Add iOS-specific manual install button
+        if (isIOS && !window.matchMedia('(display-mode: standalone)').matches) {
+            const iosInstallBtn = document.createElement('button');
+            iosInstallBtn.textContent = '📱 iOS Install';
+            iosInstallBtn.className = 'ios-install-btn';
+            iosInstallBtn.onclick = () => {
+                const iosPrompt = document.createElement('div');
+                iosPrompt.className = 'mobile-pwa-prompt';
+                iosPrompt.style.display = 'flex';
+                iosPrompt.innerHTML = `
+                    <div class="mobile-prompt-content">
+                        <h3>📱 Install on iOS</h3>
+                        <p>1. Tap the share button <span class="icon">⎋</span> at the bottom</p>
+                        <p>2. Scroll down and tap "Add to Home Screen"</p>
+                        <p>3. Tap "Add" to install the app</p>
+                        <button onclick="this.parentElement.parentElement.remove()">Got it!</button>
+                    </div>
+                `;
+                document.body.appendChild(iosPrompt);
+            };
+            header.appendChild(iosInstallBtn);
+        }
+        
         // Show mobile-specific instructions
         if (isMobile && !window.matchMedia('(display-mode: standalone)').matches) {
+            console.log('Showing mobile PWA prompt');
             const mobilePrompt = document.createElement('div');
             mobilePrompt.className = 'mobile-pwa-prompt';
             mobilePrompt.innerHTML = `
@@ -2307,6 +2331,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
             document.body.appendChild(mobilePrompt);
+            
+            // Force show on iOS after a delay
+            if (isIOS) {
+                setTimeout(() => {
+                    console.log('Forcing iOS prompt visibility');
+                    mobilePrompt.style.display = 'flex';
+                }, 1000);
+            }
+        } else {
+            console.log('Not showing mobile prompt:', {
+                isMobile,
+                isStandalone: window.matchMedia('(display-mode: standalone)').matches
+            });
         }
     }
 });
