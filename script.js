@@ -2261,139 +2261,158 @@ function createSchedulingInsights() {
     container.innerHTML = html;
 }
 
-// PWA Service Worker Registration
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-            .then(registration => {
-                console.log('SW registered: ', registration);
-            })
-            .catch(registrationError => {
-                console.log('SW registration failed: ', registrationError);
-            });
-    });
-}
-
-// PWA Install Prompt
-let deferredPrompt;
-const installButton = document.createElement('button');
-installButton.textContent = '📱 Install App';
-installButton.className = 'install-btn';
-installButton.style.display = 'none';
-
-// Mobile PWA detection
-const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-const isAndroid = /Android/.test(navigator.userAgent);
-
-// Debug logging
-console.log('🔍 PWA Detection Debug:', {
-    isMobile,
-    isIOS,
-    isAndroid,
-    userAgent: navigator.userAgent,
-    standalone: window.matchMedia('(display-mode: standalone)').matches
-});
-
-// Add install button to the page
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('🚀 DOM Content Loaded');
-    const header = document.querySelector('header');
-    console.log('📋 Header found:', !!header);
+// PWA Functionality - Move to end of file
+function initializePWA() {
+    console.log('🚀 Initializing PWA...');
     
-    if (header) {
-        header.appendChild(installButton);
-        console.log('✅ Install button added to header');
+    // Service Worker Registration
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => {
+                    console.log('SW registered: ', registration);
+                })
+                .catch(registrationError => {
+                    console.log('SW registration failed: ', registrationError);
+                });
+        });
+    }
+
+    // PWA Install Prompt
+    let deferredPrompt;
+    const installButton = document.createElement('button');
+    installButton.textContent = '📱 Install App';
+    installButton.className = 'install-btn';
+    installButton.style.display = 'none';
+
+    // Mobile PWA detection
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isAndroid = /Android/.test(navigator.userAgent);
+
+    // Debug logging
+    console.log('🔍 PWA Detection Debug:', {
+        isMobile,
+        isIOS,
+        isAndroid,
+        userAgent: navigator.userAgent,
+        standalone: window.matchMedia('(display-mode: standalone)').matches
+    });
+
+    // Add install button to the page
+    function addPWAButtons() {
+        console.log('🚀 Adding PWA buttons...');
+        const header = document.querySelector('header');
+        console.log('📋 Header found:', !!header);
         
-        // Add iOS-specific manual install button
-        if (isIOS && !window.matchMedia('(display-mode: standalone)').matches) {
-            console.log('🍎 Creating iOS install button');
-            const iosInstallBtn = document.createElement('button');
-            iosInstallBtn.textContent = '📱 iOS Install';
-            iosInstallBtn.className = 'ios-install-btn';
-            iosInstallBtn.style.display = 'inline-block'; // Force display
-            iosInstallBtn.onclick = () => {
-                console.log('🍎 iOS install button clicked');
-                const iosPrompt = document.createElement('div');
-                iosPrompt.className = 'mobile-pwa-prompt';
-                iosPrompt.style.display = 'flex';
-                iosPrompt.innerHTML = `
+        if (header) {
+            // Add main install button
+            header.appendChild(installButton);
+            console.log('✅ Install button added to header');
+            
+            // Add iOS-specific manual install button
+            if (isIOS && !window.matchMedia('(display-mode: standalone)').matches) {
+                console.log('🍎 Creating iOS install button');
+                const iosInstallBtn = document.createElement('button');
+                iosInstallBtn.textContent = '📱 iOS Install';
+                iosInstallBtn.className = 'ios-install-btn';
+                iosInstallBtn.style.display = 'inline-block'; // Force display
+                iosInstallBtn.onclick = () => {
+                    console.log('🍎 iOS install button clicked');
+                    const iosPrompt = document.createElement('div');
+                    iosPrompt.className = 'mobile-pwa-prompt';
+                    iosPrompt.style.display = 'flex';
+                    iosPrompt.innerHTML = `
+                        <div class="mobile-prompt-content">
+                            <h3>📱 Install on iOS</h3>
+                            <p>1. Tap the share button <span class="icon">⎋</span> at the bottom</p>
+                            <p>2. Scroll down and tap "Add to Home Screen"</p>
+                            <p>3. Tap "Add" to install the app</p>
+                            <button onclick="this.parentElement.parentElement.remove()">Got it!</button>
+                        </div>
+                    `;
+                    document.body.appendChild(iosPrompt);
+                    console.log('✅ iOS prompt added to body');
+                };
+                header.appendChild(iosInstallBtn);
+                console.log('✅ iOS install button added to header');
+            } else {
+                console.log('❌ Not creating iOS button:', {
+                    isIOS,
+                    isStandalone: window.matchMedia('(display-mode: standalone)').matches
+                });
+            }
+            
+            // Show mobile-specific instructions
+            if (isMobile && !window.matchMedia('(display-mode: standalone)').matches) {
+                console.log('📱 Showing mobile PWA prompt');
+                const mobilePrompt = document.createElement('div');
+                mobilePrompt.className = 'mobile-pwa-prompt';
+                mobilePrompt.innerHTML = `
                     <div class="mobile-prompt-content">
-                        <h3>📱 Install on iOS</h3>
-                        <p>1. Tap the share button <span class="icon">⎋</span> at the bottom</p>
-                        <p>2. Scroll down and tap "Add to Home Screen"</p>
-                        <p>3. Tap "Add" to install the app</p>
+                        <h3>📱 Install as App</h3>
+                        <p>${isIOS ? 
+                            'Tap the share button <span class="icon">⎋</span> then "Add to Home Screen"' : 
+                            'Tap the menu <span class="icon">⋮</span> then "Add to Home Screen"'
+                        }</p>
                         <button onclick="this.parentElement.parentElement.remove()">Got it!</button>
                     </div>
                 `;
-                document.body.appendChild(iosPrompt);
-                console.log('✅ iOS prompt added to body');
-            };
-            header.appendChild(iosInstallBtn);
-            console.log('✅ iOS install button added to header');
-        } else {
-            console.log('❌ Not creating iOS button:', {
-                isIOS,
-                isStandalone: window.matchMedia('(display-mode: standalone)').matches
-            });
-        }
-        
-        // Show mobile-specific instructions
-        if (isMobile && !window.matchMedia('(display-mode: standalone)').matches) {
-            console.log('📱 Showing mobile PWA prompt');
-            const mobilePrompt = document.createElement('div');
-            mobilePrompt.className = 'mobile-pwa-prompt';
-            mobilePrompt.innerHTML = `
-                <div class="mobile-prompt-content">
-                    <h3>📱 Install as App</h3>
-                    <p>${isIOS ? 
-                        'Tap the share button <span class="icon">⎋</span> then "Add to Home Screen"' : 
-                        'Tap the menu <span class="icon">⋮</span> then "Add to Home Screen"'
-                    }</p>
-                    <button onclick="this.parentElement.parentElement.remove()">Got it!</button>
-                </div>
-            `;
-            document.body.appendChild(mobilePrompt);
-            console.log('✅ Mobile prompt added to body');
-            
-            // Force show on iOS after a delay
-            if (isIOS) {
-                setTimeout(() => {
-                    console.log('🍎 Forcing iOS prompt visibility');
-                    mobilePrompt.style.display = 'flex';
-                }, 1000);
-            }
-        } else {
-            console.log('❌ Not showing mobile prompt:', {
-                isMobile,
-                isStandalone: window.matchMedia('(display-mode: standalone)').matches
-            });
-        }
-    } else {
-        console.log('❌ No header found');
-    }
-});
-
-window.addEventListener('beforeinstallprompt', (e) => {
-    // Prevent Chrome 67 and earlier from automatically showing the prompt
-    e.preventDefault();
-    // Stash the event so it can be triggered later
-    deferredPrompt = e;
-    // Show the install button (mainly for desktop)
-    installButton.style.display = 'inline-block';
-    
-    installButton.addEventListener('click', () => {
-        // Show the install prompt
-        deferredPrompt.prompt();
-        // Wait for the user to respond to the prompt
-        deferredPrompt.userChoice.then((choiceResult) => {
-            if (choiceResult.outcome === 'accepted') {
-                console.log('User accepted the install prompt');
+                document.body.appendChild(mobilePrompt);
+                console.log('✅ Mobile prompt added to body');
+                
+                // Force show on iOS after a delay
+                if (isIOS) {
+                    setTimeout(() => {
+                        console.log('🍎 Forcing iOS prompt visibility');
+                        mobilePrompt.style.display = 'flex';
+                    }, 1000);
+                }
             } else {
-                console.log('User dismissed the install prompt');
+                console.log('❌ Not showing mobile prompt:', {
+                    isMobile,
+                    isStandalone: window.matchMedia('(display-mode: standalone)').matches
+                });
             }
-            deferredPrompt = null;
-            installButton.style.display = 'none';
+        } else {
+            console.log('❌ No header found');
+        }
+    }
+
+    // Install prompt event
+    window.addEventListener('beforeinstallprompt', (e) => {
+        console.log('📱 Before install prompt triggered');
+        // Prevent Chrome 67 and earlier from automatically showing the prompt
+        e.preventDefault();
+        // Stash the event so it can be triggered later
+        deferredPrompt = e;
+        // Show the install button (mainly for desktop)
+        installButton.style.display = 'inline-block';
+        
+        installButton.addEventListener('click', () => {
+            console.log('📱 Install button clicked');
+            // Show the install prompt
+            deferredPrompt.prompt();
+            // Wait for the user to respond to the prompt
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                } else {
+                    console.log('User dismissed the install prompt');
+                }
+                deferredPrompt = null;
+                installButton.style.display = 'none';
+            });
         });
     });
-});
+
+    // Initialize PWA buttons
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', addPWAButtons);
+    } else {
+        addPWAButtons();
+    }
+}
+
+// Initialize PWA when script loads
+initializePWA();
