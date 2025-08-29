@@ -2463,7 +2463,92 @@ function initializePWA() {
     } else {
         addPWAButtons();
     }
+    
+    // Fallback: Add a test button to verify PWA code is running
+    setTimeout(() => {
+        console.log('🔧 Adding fallback test button...');
+        const header = document.querySelector('header');
+        if (header) {
+            const testBtn = document.createElement('button');
+            testBtn.textContent = '🧪 Test PWA';
+            testBtn.style.cssText = 'background: red; color: white; padding: 8px 16px; margin-left: 10px; border: none; border-radius: 8px;';
+            testBtn.onclick = () => {
+                alert('PWA code is running! iOS: ' + isIOS + ', Safari: ' + isSafari + ', Chrome: ' + isChrome);
+            };
+            header.appendChild(testBtn);
+            console.log('✅ Test button added');
+        }
+    }, 2000);
 }
 
 // Initialize PWA when script loads
 initializePWA();
+
+// Simple PWA Test - Add this at the very end
+console.log('🔧 PWA Test: Script loaded');
+
+// Simple PWA initialization
+function simplePWAInit() {
+    console.log('🚀 Simple PWA Init starting...');
+    
+    // Wait for page to load
+    setTimeout(() => {
+        const header = document.querySelector('header');
+        console.log('📋 Header found:', !!header);
+        
+        if (header) {
+            // Add a simple test button
+            const testBtn = document.createElement('button');
+            testBtn.textContent = '🧪 PWA Test';
+            testBtn.style.cssText = 'background: red; color: white; padding: 8px 16px; margin-left: 10px; border: none; border-radius: 8px; font-size: 14px;';
+            testBtn.onclick = () => {
+                alert('PWA code is working!');
+            };
+            header.appendChild(testBtn);
+            console.log('✅ Test button added');
+            
+            // Check if iOS
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+            const isChrome = /Chrome/.test(navigator.userAgent);
+            
+            console.log('📱 Device detection:', { isIOS, isSafari, isChrome });
+            
+            if (isIOS) {
+                // Add iOS install button
+                const iosBtn = document.createElement('button');
+                if (isSafari) {
+                    iosBtn.textContent = '📱 Safari Install';
+                    iosBtn.style.cssText = 'background: #007aff; color: white; padding: 8px 16px; margin-left: 10px; border: none; border-radius: 8px; font-size: 14px;';
+                } else {
+                    iosBtn.textContent = '📱 Chrome Install';
+                    iosBtn.style.cssText = 'background: #ff6b35; color: white; padding: 8px 16px; margin-left: 10px; border: none; border-radius: 8px; font-size: 14px;';
+                }
+                
+                iosBtn.onclick = () => {
+                    const prompt = document.createElement('div');
+                    prompt.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 10000;';
+                    prompt.innerHTML = `
+                        <div style="background: white; padding: 24px; border-radius: 12px; max-width: 300px; text-align: center;">
+                            <h3>📱 Install App</h3>
+                            <p>${isSafari ? 
+                                '1. Tap the share button ⎋ at the bottom<br>2. Tap "Add to Home Screen"' : 
+                                '1. Tap the menu ⋮ at the top<br>2. Tap "Add to Home Screen"'
+                            }</p>
+                            <button onclick="this.parentElement.parentElement.remove()" style="background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-top: 16px;">Got it!</button>
+                        </div>
+                    `;
+                    document.body.appendChild(prompt);
+                };
+                
+                header.appendChild(iosBtn);
+                console.log('✅ iOS install button added');
+            }
+        } else {
+            console.log('❌ No header found');
+        }
+    }, 1000);
+}
+
+// Start simple PWA
+simplePWAInit();
