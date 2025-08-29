@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barber Shop Dashboard - Setmore Analytics</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="Setmore Barber Shop Analytics Dashboard">
+    <meta name="theme-color" content="#3b82f6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Barber Dashboard">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9IiMzYjgyZjYiLz4KPHN2ZyB4PSI0OCIgeT0iNDgiIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJ3aGl0ZSI+CjxwYXRoIGQ9Ik0xMiAyQzEzLjEgMiAxNCAyLjkgMTQgNFY2QzE0IDcuMSAxMy4xIDggMTIgOEMxMC45IDggMTAgNy4xIDEwIDZWNEMxMCAyLjkgMTAuOSAyIDEyIDJaIi8+CjxwYXRoIGQ9Ik0xMiAxNkMxMy4xIDE2IDE0IDE2LjkgMTQgMThWMjBDMTQgMjEuMSAxMy4xIDIyIDEyIDIyQzEwLjkgMjIgMTAgMjEuMSAxMCAyMFYxOEMxMCAxNi45IDEwLjkgMTYgMTIgMTZaIi8+CjxwYXRoIGQ9Ik0yIDhDMy4xIDggNCA4LjkgNCAxMFYxMkM0IDEzLjEgMy4xIDE0IDIgMTRDMC45IDE0IDAgMTMuMSAwIDEyVjEwQzAgOC45IDAuOSA4IDIgOFoiLz4KPHBhdGggZD0iTTIyIDE2QzIzLjEgMTYgMjQgMTYuOSAyNCAxOFYyMEMyNCAyMS4xIDIzLjEgMjIgMjIgMjJDMjAuOSAyMiAyMCAyMS4xIDIwIDIwVjE4QzIwIDE2LjkgMjAuOSAxNiAyMiAxNloiLz4KPHBhdGggZD0iTTE2IDRDMTYuNiA0IDE3IDQuNCAxNyA1VjdDMTcgNy42IDE2LjYgOCAxNiA4QzE1LjQgOCAxNSA3LjYgMTUgN1Y1QzE1IDQuNCAxNS40IDQgMTYgNFoiLz4KPHBhdGggZD0iTTggMTZDOC42IDE2IDkgMTYuNCA5IDE3VjE5QzkgMTkuNiA4LjYgMjAgOCAyMEM3LjQgMjAgNyAxOS42IDcgMTlWMTdDNyAxNi40IDcuNCAxNiA4IDE2WiIvPgo8L3N2Zz4KPC9zdmc+">
+    
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Fallback if Chart.js fails to load
+        if (typeof Chart === 'undefined') {
+            console.log('Chart.js not loaded, trying fallback...');
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js';
+            script.onload = function() {
+                console.log('Chart.js loaded from fallback');
+            };
+            document.head.appendChild(script);
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>✂️ Barber Shop Analytics</h1>
+            <div class="api-config">
+                <input type="text" id="apiKey" placeholder="Enter Setmore API Key" class="api-input">
+                <button onclick="loadDashboard()" class="load-btn">Load Data</button>
+                <button onclick="testApiConnection()" class="test-btn">🔍 Test API</button>
+                <button onclick="toggleWebhooks()" class="webhook-btn" id="webhookBtn">🔗 Enable Webhooks</button>
+                <button onclick="loadDemoData()" class="demo-btn">🎯 Try Demo</button>
+            </div>
+            
+            <!-- NEW: Refresh Token Setup -->
+            <div class="refresh-token-section">
+                <details class="token-setup">
+                    <summary>🔑 Setup Auto-Refresh (One-time setup)</summary>
+                    <div class="token-setup-content">
+                        <p><strong>For automatic token refresh:</strong></p>
+                                                 <input type="text" id="refreshTokenInput" placeholder="Enter your Setmore refresh token" class="refresh-input">
+                         <button onclick="setupRefreshToken(document.getElementById('refreshTokenInput').value)" class="setup-btn">Save Refresh Token</button>
+                         <button onclick="clearTokens()" class="clear-btn">Clear All Tokens</button>
+                        <p class="token-info">💡 <strong>How to get your refresh token:</strong></p>
+                        <ol class="token-steps">
+                            <li>Go to <a href="https://developer.setmore.com" target="_blank">Setmore Developer Portal</a></li>
+                            <li>Complete OAuth2 authentication</li>
+                            <li>Copy the refresh token from the response</li>
+                            <li>Paste it above and click "Save Refresh Token"</li>
+                        </ol>
+                        <p class="token-note">✅ Once set up, the dashboard will automatically refresh your access token and load data without manual input!</p>
+                    </div>
+                </details>
+            </div>
+        </header>
+
+        <!-- Loading State -->
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>Loading your barber shop data...</p>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div id="dashboard" class="dashboard hidden">
+            <!-- Summary Cards -->
+            <div class="summary-cards">
+                <div class="card">
+                    <h3>Total Appointments</h3>
+                    <div class="number" id="totalAppointments">-</div>
+                </div>
+                <div class="card">
+                    <h3>Total Customers</h3>
+                    <div class="number" id="totalCustomers">-</div>
+                </div>
+                <div class="card">
+                    <h3>Total Services</h3>
+                    <div class="number" id="totalServices">-</div>
+                </div>
+                <div class="card">
+                    <h3>Staff Members</h3>
+                    <div class="number" id="totalStaff">-</div>
+                </div>
+                <div class="card revenue-card">
+                    <h3>Estimated Revenue</h3>
+                    <div class="number" id="totalRevenue">-</div>
+                </div>
+                <div class="card">
+                    <h3>Success Rate</h3>
+                    <div class="number" id="successRate">-</div>
+                </div>
+                <!-- NEW: Calendar Insights Cards -->
+                <div class="card calendar-card">
+                    <h3>Avg Lead Time</h3>
+                    <div class="number" id="avgLeadTime">-</div>
+                </div>
+                <div class="card calendar-card">
+                    <h3>Peak Day</h3>
+                    <div class="number" id="peakDay">-</div>
+                </div>
+                <div class="card calendar-card">
+                    <h3>Last-Minute Rate</h3>
+                    <div class="number" id="lastMinuteRate">-</div>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="charts-grid">
+                <!-- Most Frequent Customers -->
+                <div class="chart-container">
+                    <h3>Most Frequent Customers</h3>
+                    <canvas id="customersChart"></canvas>
+                </div>
+
+                <!-- Most Popular Services -->
+                <div class="chart-container">
+                    <h3>Most Popular Services</h3>
+                    <canvas id="servicesChart"></canvas>
+                </div>
+
+                <!-- Busiest Times -->
+                <div class="chart-container">
+                    <h3>Busiest Hours</h3>
+                    <canvas id="hoursChart"></canvas>
+                </div>
+
+                <!-- Staff Performance -->
+                <div class="chart-container">
+                    <h3>Staff Performance</h3>
+                    <canvas id="staffChart"></canvas>
+                </div>
+
+                <!-- Customer Retention -->
+                <div class="chart-container">
+                    <h3>Customer Retention</h3>
+                    <canvas id="retentionChart"></canvas>
+                </div>
+
+                <!-- Weekly Trends -->
+                <div class="chart-container">
+                    <h3>Weekly Appointment Trends</h3>
+                    <canvas id="weeklyChart"></canvas>
+                </div>
+
+                <!-- NEW: Cancellation & No-show Rates -->
+                <div class="chart-container">
+                    <h3>Appointment Status Analysis</h3>
+                    <canvas id="statusChart"></canvas>
+                </div>
+
+                <!-- NEW: Revenue Trends -->
+                <div class="chart-container">
+                    <h3>Revenue Trends</h3>
+                    <canvas id="revenueChart"></canvas>
+                </div>
+
+                <!-- NEW: Staff Rostering Suggestions -->
+                <div class="chart-container">
+                    <h3>Optimal Staffing Suggestions</h3>
+                    <div id="rosteringSuggestions" class="rostering-content">
+                        <div class="suggestion-loading">Loading staffing recommendations...</div>
+                    </div>
+                </div>
+
+                <!-- NEW: Real-time Activity Feed -->
+                <div class="chart-container">
+                    <h3>Real-time Activity Feed</h3>
+                    <div id="activityFeed" class="activity-feed">
+                        <div class="feed-item">
+                            <span class="feed-time">Just now</span>
+                            <span class="feed-message">Waiting for real-time updates...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NEW: Calendar & Scheduling Insights -->
+                <div class="chart-container">
+                    <h3>Booking Lead Time Analysis</h3>
+                    <canvas id="leadTimeChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Preferred Booking Days</h3>
+                    <canvas id="preferredDaysChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Seasonal Booking Trends</h3>
+                    <canvas id="seasonalChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Last-Minute vs Advanced Bookings</h3>
+                    <canvas id="bookingTimingChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Monthly Booking Patterns</h3>
+                    <canvas id="monthlyPatternsChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3>📅 Scheduling Insights</h3>
+                    <div id="schedulingInsights" class="scheduling-content">
+                        <div class="insight-loading">Loading scheduling recommendations...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NEW: Webhook Configuration Modal -->
+            <div id="webhookModal" class="modal hidden">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>🔗 Webhook Configuration</h3>
+                        <button onclick="closeWebhookModal()" class="close-btn">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Enable real-time updates for your dashboard:</p>
+                        <div class="webhook-status">
+                            <span id="webhookStatus">Status: Disabled</span>
+                            <button onclick="toggleWebhookConnection()" id="webhookToggleBtn" class="webhook-toggle-btn">Enable</button>
+                        </div>
+                        <div class="webhook-info">
+                            <h4>What this does:</h4>
+                            <ul>
+                                <li>✅ Real-time appointment updates</li>
+                                <li>✅ Instant dashboard refresh</li>
+                                <li>✅ Live activity feed</li>
+                                <li>✅ Automatic data sync</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error State -->
+        <div id="error" class="error hidden">
+            <h3>⚠️ Error Loading Data</h3>
+            <p id="errorMessage">Please check your API key and try again.</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Check if everything loaded properly
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded');
+            console.log('Chart.js available:', typeof Chart !== 'undefined');
+            console.log('loadDemoData function:', typeof loadDemoData);
+            console.log('generateDemoData function:', typeof generateDemoData);
+        });
+    </script>
+</body>
+</html>
