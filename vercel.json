@@ -1,4 +1,8 @@
 {
   "version": 2,
-  "buildCommand": "echo 'Building PWA version'"
+  "functions": {
+    "api/setmore.js": {
+      "maxDuration": 30
+    }
+  }
 }
