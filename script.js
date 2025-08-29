@@ -2507,33 +2507,50 @@ function simplePWAInit() {
             header.appendChild(testBtn);
             console.log('✅ Test button added');
             
-            // Check if iOS
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-            const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
-            const isChrome = /Chrome/.test(navigator.userAgent);
+            // Better iOS detection
+            const userAgent = navigator.userAgent;
+            const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+            const isSafari = /Safari/.test(userAgent) && !/Chrome|CriOS|FxiOS/.test(userAgent);
+            const isChrome = /Chrome|CriOS/.test(userAgent);
             
-            console.log('📱 Device detection:', { isIOS, isSafari, isChrome });
+            console.log('📱 Device detection:', { 
+                userAgent: userAgent.substring(0, 100) + '...',
+                isIOS, 
+                isSafari, 
+                isChrome 
+            });
             
+            // Always add iOS install button if on iOS
             if (isIOS) {
+                console.log('🍎 iOS detected, adding install button');
+                
                 // Add iOS install button
                 const iosBtn = document.createElement('button');
                 if (isSafari) {
                     iosBtn.textContent = '📱 Safari Install';
                     iosBtn.style.cssText = 'background: #007aff; color: white; padding: 8px 16px; margin-left: 10px; border: none; border-radius: 8px; font-size: 14px;';
-                } else {
+                    console.log('🔵 Safari button created');
+                } else if (isChrome) {
                     iosBtn.textContent = '📱 Chrome Install';
                     iosBtn.style.cssText = 'background: #ff6b35; color: white; padding: 8px 16px; margin-left: 10px; border: none; border-radius: 8px; font-size: 14px;';
+                    console.log('🟠 Chrome button created');
+                } else {
+                    // Fallback for other iOS browsers
+                    iosBtn.textContent = '📱 iOS Install';
+                    iosBtn.style.cssText = 'background: #3b82f6; color: white; padding: 8px 16px; margin-left: 10px; border: none; border-radius: 8px; font-size: 14px;';
+                    console.log('🔷 Generic iOS button created');
                 }
                 
                 iosBtn.onclick = () => {
+                    console.log('📱 Install button clicked');
                     const prompt = document.createElement('div');
                     prompt.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 10000;';
                     prompt.innerHTML = `
                         <div style="background: white; padding: 24px; border-radius: 12px; max-width: 300px; text-align: center;">
                             <h3>📱 Install App</h3>
                             <p>${isSafari ? 
-                                '1. Tap the share button ⎋ at the bottom<br>2. Tap "Add to Home Screen"' : 
-                                '1. Tap the menu ⋮ at the top<br>2. Tap "Add to Home Screen"'
+                                '1. Tap the <strong>share button</strong> ⎋ at the bottom<br>2. Scroll down and tap <strong>"Add to Home Screen"</strong><br>3. Tap <strong>"Add"</strong> to install' : 
+                                '1. Tap the <strong>menu button</strong> ⋮ at the top<br>2. Tap <strong>"Add to Home Screen"</strong><br>3. Tap <strong>"Add"</strong> to install'
                             }</p>
                             <button onclick="this.parentElement.parentElement.remove()" style="background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 8px; margin-top: 16px;">Got it!</button>
                         </div>
@@ -2542,7 +2559,9 @@ function simplePWAInit() {
                 };
                 
                 header.appendChild(iosBtn);
-                console.log('✅ iOS install button added');
+                console.log('✅ iOS install button added to header');
+            } else {
+                console.log('❌ Not iOS device');
             }
         } else {
             console.log('❌ No header found');
