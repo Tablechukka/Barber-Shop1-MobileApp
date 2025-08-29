@@ -1,3 +1,14 @@
 {
-  "version": 2
+  "version": 2,
+  "functions": {
+    "setmore.js": {
+      "maxDuration": 30
+    }
+  },
+  "routes": [
+    {
+      "src": "/api/setmore",
+      "dest": "/setmore.js"
+    }
+  ]
 }
