@@ -10,16 +10,6 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('📋 PWA: Header found:', !!header);
     
     if (header) {
-        // Add test button
-        const testBtn = document.createElement('button');
-        testBtn.textContent = '🧪 PWA Test';
-        testBtn.style.cssText = 'background: red; color: white; padding: 8px 16px; margin-left: 10px; border: none; border-radius: 8px; font-size: 14px;';
-        testBtn.onclick = function() {
-            alert('PWA.js is working!');
-        };
-        header.appendChild(testBtn);
-        console.log('✅ PWA: Test button added');
-        
         // iOS detection
         const userAgent = navigator.userAgent;
         const isIOS = /iPad|iPhone|iPod/.test(userAgent);
@@ -35,23 +25,23 @@ document.addEventListener('DOMContentLoaded', function() {
             userAgent: userAgent.substring(0, 50) + '...'
         });
         
-        // Add iOS install button
+        // Add iOS install button only if not already installed
         if (isIOS && !isStandalone) {
             console.log('🍎 PWA: iOS detected, adding install button');
             
             const iosBtn = document.createElement('button');
             
             if (isSafari) {
-                iosBtn.textContent = '📱 Safari Install';
-                iosBtn.style.cssText = 'background: #007aff; color: white; padding: 8px 16px; margin-left: 10px; border: none; border-radius: 8px; font-size: 14px;';
+                iosBtn.textContent = '📱 Add to Home Screen';
+                iosBtn.style.cssText = 'background: #007aff; color: white; padding: 8px 16px; margin-left: 10px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer;';
                 console.log('🔵 PWA: Safari button created');
             } else if (isChrome) {
-                iosBtn.textContent = '📱 Chrome Install';
-                iosBtn.style.cssText = 'background: #ff6b35; color: white; padding: 8px 16px; margin-left: 10px; border: none; border-radius: 8px; font-size: 14px;';
+                iosBtn.textContent = '📱 Add to Home Screen';
+                iosBtn.style.cssText = 'background: #ff6b35; color: white; padding: 8px 16px; margin-left: 10px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer;';
                 console.log('🟠 PWA: Chrome button created');
             } else {
-                iosBtn.textContent = '📱 iOS Install';
-                iosBtn.style.cssText = 'background: #3b82f6; color: white; padding: 8px 16px; margin-left: 10px; border: none; border-radius: 8px; font-size: 14px;';
+                iosBtn.textContent = '📱 Add to Home Screen';
+                iosBtn.style.cssText = 'background: #3b82f6; color: white; padding: 8px 16px; margin-left: 10px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer;';
                 console.log('🔷 PWA: Generic iOS button created');
             }
             
